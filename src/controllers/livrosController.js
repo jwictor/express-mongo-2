@@ -1,9 +1,11 @@
+import NaoEncontrado from "../erros/NaoEncontrado.js";
 import livros from "../models/Livro.js";
 
 class LivroController {
 
   static listarLivros = async (req, res, next) => {
     try {
+    
       const livrosResultado = await livros.find()
         .populate("autor")
         .exec();
@@ -21,8 +23,13 @@ class LivroController {
       const livroResultados = await livros.findById(id)
         .populate("autor", "nome")
         .exec();
+      
+      if (livroResultados !== null) {
+        res.status(200).send(livroResultados);
+      } else {
+        next(new NaoEncontrado("Id do Livro não localizado."));
+      }
 
-      res.status(200).send(livroResultados);
     } catch (erro) {
       next(erro);
     }
